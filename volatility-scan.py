@@ -1,5 +1,6 @@
 import yfinance as yf
 import math
+import argparse
 
 def get_mean(lst):
     sum = 0.0
@@ -44,15 +45,26 @@ def calc_volatility_over_time(timeseries, interval):
         vols[i] = calc_volatility_from_samples(timeseries[i-(interval-1):i+1])
     
     return vols
-    
 
+def main():
+    parser = argparse.ArgumentParser()
 
-data = yf.download(
-    tickers="TSLA",
-    period="1mo",
-    interval="30m",
-    prepost=True,
-    threads=True
-)
+    parser.add_argument("-t", type=str, action="store", dest="ticker", default="SPY", help="The ticker for the stock to analyze")
+    parser.add_argument("-p", type=str, action="store", dest="period", default="1mo", help="The period of time to analyze")
+    parser.add_argument("-i", type=str, action="store", dest="interval", default="30m", help="The measurement intervals to be interpretted from")
+    parser.add_argument("-v", action="store_true", dest="verbose", help="Toggles verbosity")
 
-print(calc_volatility_over_time(data['Open'], 10))
+    args = parser.parse_args()
+
+    data = yf.download(
+        tickers=args.ticker.upper(),
+        period=args.period,
+        interval=args.interval,
+        prepost=True,
+        threads=True
+    )
+
+    print(calc_volatility_over_time(data['Open'], 10))
+
+if __name__ == "__main__":
+    main()
